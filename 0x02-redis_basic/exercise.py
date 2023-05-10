@@ -2,7 +2,7 @@
 """Cache."""
 import redis
 import uuid
-from typing import Union
+from typing import Union, Callable, Optional
 
 
 class Cache:
@@ -18,3 +18,25 @@ class Cache:
         key = uuid.uuid4()
         self._redis.set(f"{key}", data)
         return (f"{key}")
+
+    def get(self, key: str, fn: Optional[Callable] = None)
+    -> Union[str, bytes, int, float]:
+        """Read from Redis."""
+        val = self._redis.get(key)
+        if fn:
+            val = fn(val)
+        return val
+
+    def get_str(self, key: str) -> str:
+        """Get string."""
+        val = self._redis.get(key)
+        return val.decode("utf-8")
+
+    def get_int(self, key: str) -> int:
+        """Get int."""
+        val = self._redis.get(key)
+        try:
+            val = int(val.decode("utf-8"))
+        except Exception:
+            val = 0
+        return val
