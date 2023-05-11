@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+"""get_page."""
+import requests
+from typing import Callable
+from functools import wraps
+import redis
+
+
+def count(method: Callable) -> Callable:
+    """Track how many times a particular URL was accessed."""
+    _redis = redis.Redis()
+
+    @wraps(method)
+    def wrapper(url):
+        """Wrap does the count."""
+        _redis.incr(f"count:{url}")
+        exp_count = _redis.get(f"cached:{url}")
+        if exp_count:
+            return exp_count.decode("utf-8")
+        page = method(url)
+        r.setex(f"cached:{url}", 10, html)
+        return html
+    return wrapped
+
+
+def get_page(url: str) -> str:
+    """Use the requests module to obtain the HTML content."""
+    return requests.get(url).text
