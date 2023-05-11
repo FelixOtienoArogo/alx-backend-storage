@@ -16,19 +16,17 @@ def count_requests(method: Callable) -> Callable:
         """Wrap the method."""
         key = f"count:{url}"
         _redis.incr(key)
-        count = _redis.get(key)
-        if count is not None:
-            return count.decode('utf-8')
+        html = _redis.get(f"cached:{url}")
+        if html:
+            return html.decode('utf-8')
         else:
             page = method(url)
-            _redis.setex(key, 10, page)
+            _redis.setex(f"cached:{url}", 10, page)
             return page
-
     return wrapper
 
 
 @count_requests
 def get_page(url: str) -> str:
     """Get the html content of a web page."""
-    req = requests.get(url)
-    return req.text
+    return requests.get(url).text
