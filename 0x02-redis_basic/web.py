@@ -18,8 +18,8 @@ def count(method: Callable) -> Callable:
         if exp_count:
             return exp_count.decode("utf-8")
         page = method(url)
-        r.setex(f"cached:{url}", 10, html)
-        return html
+        r.setex(f"cached:{url}", 10, page)
+        return page
     return wrapped
 
 
